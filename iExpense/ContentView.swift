@@ -42,115 +42,72 @@ struct ContentView: View {
     
     @State private var showingAddExpense = false
     
-//    @State private var expenseItem = expe
+    @State private var itemTypes = ["Personal", "Business"]
+    @State private var itemType = "Personal"
     
     var body: some View {
         NavigationStack {
+            
+            Picker("Business/Personal", selection: $itemType) {
+                ForEach(itemTypes, id: \.self) {
+                    Text($0)
+                }
+            }
+            .pickerStyle(.palette)
+            .padding(.horizontal)
             List {
                 ForEach(expenses.items) { item in
                     
-                    if item.type == "Personal" {
-                        Section("Personal") {
-                            if item.amount < 100 {
-                                HStack {
-                                    VStack(alignment: .leading) {
-                                        Text("\(item.name)")
-                                            .font(.headline)
-                                        Text("\(item.type)")
-                                            .font(.footnote)
-                                    }
-                                    
-                                    Spacer()
-                                    
-                                    Text(item.amount, format: .currency(code: Locale.current.currency?.identifier ?? "EUR"))
-                                        .foregroundStyle(.green)
-                                    
+                    if item.type == itemType {
+                        if item.amount < 100 {
+                            HStack {
+                                VStack(alignment: .leading) {
+                                    Text("\(item.name)")
+                                        .font(.headline)
+                                    Text("\(item.type)")
+                                        .font(.footnote)
                                 }
-                            } else if item.amount < 500 {
-                                HStack {
-                                    VStack(alignment: .leading) {
-                                        Text("\(item.name)")
-                                            .font(.headline)
-                                        Text("\(item.type)")
-                                            .font(.footnote)
-                                    }
-                                    
-                                    Spacer()
-                                    
-                                    Text(item.amount, format: .currency(code: Locale.current.currency?.identifier ?? "EUR"))
-                                        .foregroundStyle(.purple)
-                                        .fontWeight(.semibold)
-                                }
-                            } else {
-                                HStack {
-                                    VStack(alignment: .leading) {
-                                        Text("\(item.name)")
-                                            .font(.headline)
-                                        Text("\(item.type)")
-                                            .font(.footnote)
-                                    }
-                                    
-                                    Spacer()
-                                    
-                                    Text(item.amount, format: .currency(code: Locale.current.currency?.identifier ?? "EUR"))
-                                        .foregroundStyle(.red)
-                                        .fontWeight(.bold)
-                                    
-                                }
+                                
+                                Spacer()
+                                
+                                Text(item.amount, format: .currency(code: Locale.current.currency?.identifier ?? "EUR"))
+                                    .foregroundStyle(.green)
+                                
                             }
-                        }
-                    } else {
-                        Section("Bussiness") {
-                            if item.amount < 100 {
-                                HStack {
-                                    VStack(alignment: .leading) {
-                                        Text("\(item.name)")
-                                            .font(.headline)
-                                        Text("\(item.type)")
-                                            .font(.footnote)
-                                    }
-                                    
-                                    Spacer()
-                                    
-                                    Text(item.amount, format: .currency(code: Locale.current.currency?.identifier ?? "EUR"))
-                                        .foregroundStyle(.green)
-                                    
+                        } else if item.amount < 500 {
+                            HStack {
+                                VStack(alignment: .leading) {
+                                    Text("\(item.name)")
+                                        .font(.headline)
+                                    Text("\(item.type)")
+                                        .font(.footnote)
                                 }
-                            } else if item.amount < 500 {
-                                HStack {
-                                    VStack(alignment: .leading) {
-                                        Text("\(item.name)")
-                                            .font(.headline)
-                                        Text("\(item.type)")
-                                            .font(.footnote)
-                                    }
-                                    
-                                    Spacer()
-                                    
-                                    Text(item.amount, format: .currency(code: Locale.current.currency?.identifier ?? "EUR"))
-                                        .foregroundStyle(.purple)
-                                        .fontWeight(.semibold)
+                                
+                                Spacer()
+                                
+                                Text(item.amount, format: .currency(code: Locale.current.currency?.identifier ?? "EUR"))
+                                    .foregroundStyle(.purple)
+                                    .fontWeight(.semibold)
+                            }
+                        } else {
+                            HStack {
+                                VStack(alignment: .leading) {
+                                    Text("\(item.name)")
+                                        .font(.headline)
+                                    Text("\(item.type)")
+                                        .font(.footnote)
                                 }
-                            } else {
-                                HStack {
-                                    VStack(alignment: .leading) {
-                                        Text("\(item.name)")
-                                            .font(.headline)
-                                        Text("\(item.type)")
-                                            .font(.footnote)
-                                    }
-                                    
-                                    Spacer()
-                                    
-                                    Text(item.amount, format: .currency(code: Locale.current.currency?.identifier ?? "EUR"))
-                                        .foregroundStyle(.red)
-                                        .fontWeight(.bold)
-                                    
-                                }
+                                
+                                Spacer()
+                                
+                                Text(item.amount, format: .currency(code: Locale.current.currency?.identifier ?? "EUR"))
+                                    .foregroundStyle(.red)
+                                    .fontWeight(.bold)
+                                
                             }
                         }
                     }
-                }
+                    }
                 .onDelete(perform: removeItems)
             }
             .navigationTitle("iExpense")
