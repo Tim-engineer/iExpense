@@ -16,7 +16,7 @@ struct AddView: View {
     
     var expenses: Expenses
     
-    let types = ["Business", "Personal"]
+    let types = ["Personal", "Business"]
     
     var body: some View {
         NavigationStack {
@@ -28,6 +28,8 @@ struct AddView: View {
                         Text($0)
                     }
                 }
+                .pickerStyle(.segmented)
+                .padding(.vertical)
                 
                 TextField("Amount", value: $amount, format: .currency(code: Locale.current.currency?.identifier ?? "EUR"))
                     .keyboardType(.decimalPad)
