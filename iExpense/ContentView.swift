@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct ExpenseItem: Identifiable, Codable {
+struct ExpenseItem: Identifiable, Codable, Hashable {
     var id = UUID()
     
     let name: String
@@ -16,7 +16,15 @@ struct ExpenseItem: Identifiable, Codable {
 }
 
 @Observable
-class Expenses {
+class Expenses: Hashable {
+    static func == (lhs: Expenses, rhs: Expenses) -> Bool {
+        return lhs.items == rhs.items
+    }
+    
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(items)
+    }
+    
     var items = [ExpenseItem]() {
         didSet {
             if let encoded = try? JSONEncoder().encode(items) {
@@ -40,8 +48,6 @@ class Expenses {
 struct ContentView: View {
     @State private var expenses = Expenses()
     
-    @State private var showingAddExpense = false
-    
     @State private var itemTypes = ["Personal", "Business"]
     @State private var itemType = "Personal"
     
@@ -60,64 +66,23 @@ struct ContentView: View {
                     
                     if item.type == itemType {
                         if item.amount < 100 {
-                            HStack {
-                                VStack(alignment: .leading) {
-                                    Text("\(item.name)")
-                                        .font(.headline)
-                                    Text("\(item.type)")
-                                        .font(.footnote)
-                                }
-                                
-                                Spacer()
-                                
-                                Text(item.amount, format: .currency(code: Locale.current.currency?.identifier ?? "EUR"))
-                                    .foregroundStyle(.green)
-                                
-                            }
+                            ListItem(name: item.name, type: item.type, amount: item.amount, color: .green, weight: .regular)
                         } else if item.amount < 500 {
-                            HStack {
-                                VStack(alignment: .leading) {
-                                    Text("\(item.name)")
-                                        .font(.headline)
-                                    Text("\(item.type)")
-                                        .font(.footnote)
-                                }
-                                
-                                Spacer()
-                                
-                                Text(item.amount, format: .currency(code: Locale.current.currency?.identifier ?? "EUR"))
-                                    .foregroundStyle(.purple)
-                                    .fontWeight(.semibold)
-                            }
+                            ListItem(name: item.name, type: item.type, amount: item.amount, color: .purple, weight: .semibold)
                         } else {
-                            HStack {
-                                VStack(alignment: .leading) {
-                                    Text("\(item.name)")
-                                        .font(.headline)
-                                    Text("\(item.type)")
-                                        .font(.footnote)
-                                }
-                                
-                                Spacer()
-                                
-                                Text(item.amount, format: .currency(code: Locale.current.currency?.identifier ?? "EUR"))
-                                    .foregroundStyle(.red)
-                                    .fontWeight(.bold)
-                                
-                            }
+                            ListItem(name: item.name, type: item.type, amount: item.amount, color: .red, weight: .bold)
                         }
                     }
-                    }
+                }
                 .onDelete(perform: removeItems)
             }
             .navigationTitle("iExpense")
             .toolbar {
-                Button("Add Expense", systemImage: "plus") {
-                    showingAddExpense = true
+                NavigationLink {
+                    AddView(expenses: expenses)
+                } label: {
+                    Image(systemName: "plus")
                 }
-            }
-            .sheet(isPresented: $showingAddExpense) {
-                AddView(expenses: expenses)
             }
         }
     }
@@ -130,3 +95,30 @@ struct ContentView: View {
 #Preview {
     ContentView()
 }
+
+struct ListItem: View {
+    
+    let name: String
+    let type: String
+    let amount: Double
+    let color: Color
+    let weight: Font.Weight
+    
+    var body: some View {
+        HStack {
+            VStack(alignment: .leading) {
+                Text(name)
+                    .font(.headline)
+                Text(type)
+                    .font(.footnote)
+            }
+            
+            Spacer()
+            
+            Text(amount, format: .currency(code: Locale.current.currency?.identifier ?? "EUR"))
+                .foregroundStyle(color)
+                .fontWeight(weight)
+        }
+    }
+}
+

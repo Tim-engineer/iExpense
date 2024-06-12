@@ -10,7 +10,7 @@ import SwiftUI
 struct AddView: View {
     @Environment(\.dismiss) var dismiss
     
-    @State private var name = ""
+    @State private var name = "Name of your expense"
     @State private var type = "Personal"
     @State private var amount = 0.0
     
@@ -21,27 +21,36 @@ struct AddView: View {
     var body: some View {
         NavigationStack {
             Form {
-                TextField("Name", text: $name)
-                
-                Picker("Typer", selection: $type) {
+                Picker("Type", selection: $type) {
                     ForEach(types, id: \.self) {
                         Text($0)
                     }
                 }
-                .pickerStyle(.segmented)
-                .padding(.vertical)
+                .pickerStyle(.wheel)
+                .frame(height: /*@START_MENU_TOKEN@*/100/*@END_MENU_TOKEN@*/)
                 
                 TextField("Amount", value: $amount, format: .currency(code: Locale.current.currency?.identifier ?? "EUR"))
                     .keyboardType(.decimalPad)
             }
-            .navigationTitle("Add new expenses")
+            .navigationTitle($name)
             .toolbar {
-                Button("Save") {
-                    let item = ExpenseItem(name: name, type: type, amount: amount)
-                    expenses.items.append(item)
-                    dismiss()
+                ToolbarItem(placement: .confirmationAction) {
+                    Button("Save") {
+                        let item = ExpenseItem(name: name, type: type, amount: amount)
+                        expenses.items.append(item)
+                        dismiss()
+                    }
+                }
+                
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("Cancel") {
+                        dismiss()
+                    }
+                    .tint(.red)
                 }
             }
+            .navigationBarBackButtonHidden()
+            .navigationBarTitleDisplayMode(.inline)
         }
     }
 }
