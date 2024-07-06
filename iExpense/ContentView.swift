@@ -16,14 +16,7 @@ struct ExpenseItem: Identifiable, Codable, Hashable {
 }
 
 @Observable
-class Expenses: Hashable {
-    static func == (lhs: Expenses, rhs: Expenses) -> Bool {
-        return lhs.items == rhs.items
-    }
-    
-    func hash(into hasher: inout Hasher) {
-        hasher.combine(items)
-    }
+class Expenses {
     
     var items = [ExpenseItem]() {
         didSet {
