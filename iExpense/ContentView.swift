@@ -43,14 +43,13 @@ struct ContentView: View {
     @Environment(\.modelContext) var modelContext
     @Query var expenses: [Expense]
     
-    @State private var itemTypes = ["Personal", "Business"]
-    @State private var itemType = "Personal"
+    @State private var expense = Expense()
     
     var body: some View {
         NavigationStack {
             
-            Picker("Business/Personal", selection: $itemType) {
-                ForEach(itemTypes, id: \.self) {
+            Picker("Business/Personal", selection: $expense.itemType) {
+                ForEach(expense.itemTypes, id: \.self) {
                     Text($0)
                 }
             }
@@ -58,17 +57,19 @@ struct ContentView: View {
             .padding(.horizontal)
             List {
                 ForEach(expenses) { item in
-                    
-                    NavigationLink(value: item) {
-                        if item.type == itemType {
-                            if item.amount < 100 {
-                                ListItem(name: item.name, type: item.type, amount: item.amount, color: .green, weight: .regular)
-                            } else if item.amount < 500 {
-                                ListItem(name: item.name, type: item.type, amount: item.amount, color: .purple, weight: .semibold)
-                            } else {
-                                ListItem(name: item.name, type: item.type, amount: item.amount, color: .red, weight: .bold)
-                            }
+                    HStack {
+                        VStack(alignment: .leading) {
+                            Text(item.name)
+                                .font(.headline)
+                            Text(item.type)
+                                .font(.caption)
                         }
+                        
+                        Spacer()
+                        
+                        Text(item.amount, format: .currency(code: Locale.current.currency?.identifier ?? "EUR"))
+                            .foregroundStyle(.purple)
+                            .fontWeight(.bold)
                     }
                 }
                 .onDelete(perform: removeItems)
@@ -122,3 +123,14 @@ struct ListItem: View {
     }
 }
 
+//NavigationLink(value: item) {
+//    if item.type == itemType {
+//        if item.amount < 100 {
+//            ListItem(name: item.name, type: item.type, amount: item.amount, color: .green, weight: .regular)
+//        } else if item.amount < 500 {
+//            ListItem(name: item.name, type: item.type, amount: item.amount, color: .purple, weight: .semibold)
+//        } else {
+//            ListItem(name: item.name, type: item.type, amount: item.amount, color: .red, weight: .bold)
+//        }
+//    }
+//}

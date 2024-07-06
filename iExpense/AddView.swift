@@ -18,6 +18,8 @@ struct AddView: View {
     var body: some View {
         NavigationStack {
             Form {
+                TextField("Name", text: $expense.name)
+                
                 Picker("Type", selection: $expense.type) {
                     ForEach(types, id: \.self) {
                         Text($0)

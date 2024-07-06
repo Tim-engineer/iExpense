@@ -13,6 +13,8 @@ class Expense {
     var name: String
     var type: String
     var amount: Double
+    var itemTypes = ["Personal", "Business"]
+    var itemType = "Personal"
     
     init(name: String = "", type: String = "", amount: Double = 0) {
         self.name = name
