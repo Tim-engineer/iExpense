@@ -6,40 +6,42 @@
 //
 
 import SwiftUI
+import SwiftData
 
-struct ExpenseItem: Identifiable, Codable, Hashable {
-    var id = UUID()
-    
-    let name: String
-    let type: String
-    let amount: Double
-}
-
-@Observable
-class Expenses {
-    
-    var items = [ExpenseItem]() {
-        didSet {
-            if let encoded = try? JSONEncoder().encode(items) {
-                UserDefaults.standard.setValue(encoded, forKey: "Items")
-            }
-        }
-    }
-    
-    init() {
-        if let savedItems = UserDefaults.standard.data(forKey: "Items") {
-            if let decodedItems = try? JSONDecoder().decode([ExpenseItem].self, from: savedItems) {
-                items = decodedItems
-                return
-            }
-        }
-        
-        items = []
-    }
-}
+//struct ExpenseItem: Identifiable, Codable, Hashable {
+//    var id = UUID()
+//    
+//    let name: String
+//    let type: String
+//    let amount: Double
+//}
+//
+//@Observable
+//class Expenses {
+//    
+//    var items = [ExpenseItem]() {
+//        didSet {
+//            if let encoded = try? JSONEncoder().encode(items) {
+//                UserDefaults.standard.setValue(encoded, forKey: "Items")
+//            }
+//        }
+//    }
+//    
+//    init() {
+//        if let savedItems = UserDefaults.standard.data(forKey: "Items") {
+//            if let decodedItems = try? JSONDecoder().decode([ExpenseItem].self, from: savedItems) {
+//                items = decodedItems
+//                return
+//            }
+//        }
+//        
+//        items = []
+//    }
+//}
 
 struct ContentView: View {
-    @State private var expenses = Expenses()
+    @Environment(\.modelContext) var modelContext
+    @Query var expenses: [Expense]
     
     @State private var itemTypes = ["Personal", "Business"]
     @State private var itemType = "Personal"
@@ -55,15 +57,17 @@ struct ContentView: View {
             .pickerStyle(.palette)
             .padding(.horizontal)
             List {
-                ForEach(expenses.items) { item in
+                ForEach(expenses) { item in
                     
-                    if item.type == itemType {
-                        if item.amount < 100 {
-                            ListItem(name: item.name, type: item.type, amount: item.amount, color: .green, weight: .regular)
-                        } else if item.amount < 500 {
-                            ListItem(name: item.name, type: item.type, amount: item.amount, color: .purple, weight: .semibold)
-                        } else {
-                            ListItem(name: item.name, type: item.type, amount: item.amount, color: .red, weight: .bold)
+                    NavigationLink(value: item) {
+                        if item.type == itemType {
+                            if item.amount < 100 {
+                                ListItem(name: item.name, type: item.type, amount: item.amount, color: .green, weight: .regular)
+                            } else if item.amount < 500 {
+                                ListItem(name: item.name, type: item.type, amount: item.amount, color: .purple, weight: .semibold)
+                            } else {
+                                ListItem(name: item.name, type: item.type, amount: item.amount, color: .red, weight: .bold)
+                            }
                         }
                     }
                 }
@@ -72,7 +76,7 @@ struct ContentView: View {
             .navigationTitle("iExpense")
             .toolbar {
                 NavigationLink {
-                    AddView(expenses: expenses)
+                    AddView()
                 } label: {
                     Image(systemName: "plus")
                 }
@@ -80,8 +84,11 @@ struct ContentView: View {
         }
     }
     
-    func removeItems(at offsets: IndexSet) {
-        expenses.items.remove(atOffsets: offsets)
+    func removeItems(_ indexSet: IndexSet) {
+        for index in indexSet {
+            let expense = expenses[index]
+            modelContext.delete(expense)
+        }
     }
 }
 
